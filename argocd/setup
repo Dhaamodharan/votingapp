@@ -1,0 +1,18 @@
+Setting up the argocd in same EKS cluster
+
+# Create a namespace for Argo CD
+kubectl create namespace argocd
+
+# Install Argo CD in the argocd namespace
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+# Port Forwarding (for local access)
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+# Forexternal use - configure ELB
+
+# Retrieve the Initial Admin Password
+kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 --decode; echo
+
+# Access ArgoCD web interface
+https://localhost:8080 - then configure the job to deploy the applications
+

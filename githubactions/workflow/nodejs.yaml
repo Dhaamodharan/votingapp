@@ -1,0 +1,46 @@
+name: Node.js CI
+
+# Trigger the workflow on push or pull request to the main branch
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x, 18.x]  # Test on multiple Node.js versions
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run lint
+      run: npm run lint  # Assumes your package.json has a lint script
+
+    - name: Run tests
+      run: npm test  # Assumes your package.json has a test script
+
+    - name: Build project
+      run: npm run build  # Assumes your package.json has a build script
+
+    - name: Upload coverage to Codecov
+      if: ${{ github.event_name == 'push' }}
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./coverage/*.json  # Adjust based on your coverage tool
+        fail_ci_if_error: true
